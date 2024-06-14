@@ -66,11 +66,11 @@ const appointmentSchema = new mongoose.Schema({
     required: [true, "Address Is Required!"],
   },
   doctorId: {
-    type: mongoose.Schema.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     required: [true, "Doctor Id Is Invalid!"],
   },
   patientId: {
-    type: mongoose.Schema.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: [true, "Patient Id Is Required!"],
   },
