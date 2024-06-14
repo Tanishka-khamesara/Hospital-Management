@@ -6,7 +6,7 @@ import { User } from "../models/userSchema.js";
 export const postAppointment = catchAsyncErrors(async (req, res, next) => {
     const { firstName, lastName, email, phone, nic, dob, gender, appointment_date, department, doctor_firstName, doctor_lastName, hasVisited, address } = req.body;
     
-    if (!firstName || !lastName || !email || !phone || !nic || !dob || !gender || !appointment_date || !department || !doctor_firstName || !doctor_lastName || !hasVisited || !address) {
+    if (!firstName || !lastName || !email || !phone || !nic || !dob || !gender || !appointment_date || !department || !doctor_firstName || !doctor_lastName || !address) {
         return next(new ErrorHandler("All Fields Required", 400));
     }
     //check if there are two or more doctors with same name
@@ -17,10 +17,10 @@ export const postAppointment = catchAsyncErrors(async (req, res, next) => {
         doctorDepartment:department,
     })
     if (isConflict.length === 0) {
-        return next(ErrorHandler("Doctor not Found",404))
+        return next(new ErrorHandler("Doctor not Found",404))
     }
     if (isConflict.length >1) {
-        return next(ErrorHandler("Doctor Conflict! Please Contact Through Email or Phone!",404))
+        return next(new ErrorHandler("Doctor Conflict! Please Contact Through Email or Phone!",404))
     }
     const doctorId = isConflict[0]._id;
     const patientId = req.user._id;
@@ -34,10 +34,57 @@ export const postAppointment = catchAsyncErrors(async (req, res, next) => {
     res.status(200).json({
         success: true,
         message: "Appointment send Successfully",
+        appointment,
     });
-
-    
 })
+
+// get all appointments----------------------------------------------------------------------
+
+export const getAllAppointments = catchAsyncErrors(async (req, res, next) => {
+    const appointments = await Appointment.find();
+
+    res.status(200).json({
+        success: true,
+        appointments
+    })
+})
+
+// to update status of appointment
+
+export const updateAppointmentStatus = catchAsyncErrors(async (req, res, next) => {
+    const { id } = req.params;
+    let appointment = await Appointment.findById(id);
+    if (!appointment) {
+        next(new ErrorHandler("Appointment not Found", 404));
+    }
+    appointment = await Appointment.findByIdAndUpdate(id, req.body, {
+        new: true,
+        runValidators: true,
+        useFindAndModify:false,
+    })
+    res.status(200).json({
+        success: true,
+        message:"Appointment status updated",
+        appointment,
+    })
+})
+
+//how to delete an appointment------------------------------------------------------
+
+export const deleteAppointment = catchAsyncErrors(async (req, res, next) => {
+    const { id } = req.params;
+    const appointment = Appointment.findById(id);
+    if (!appointment) {
+        return next(new ErrorHandler("Appointment not found!", 404));
+    }
+    await appointment.deleteOne();
+    res.status(200).json({
+        success: true,
+        message:"Appointment deleted",
+    })
+
+})
+
 
 
 

@@ -1,8 +1,15 @@
 import express from "express";
-import { postAppointment } from "../controller/appointmentController.js";
+import { deleteAppointment, getAllAppointments, postAppointment, updateAppointmentStatus } from "../controller/appointmentController.js";
+import { isAdminAuthenticated,isPatientAuthenticated} from "../middlewares/auth.js"
 
 const router = express.Router();
 
-router.post("/post", postAppointment);
+router.post("/post", isPatientAuthenticated, postAppointment);
+
+router.get("/allAppointments", isAdminAuthenticated, getAllAppointments);
+
+router.put("/update/:id", isAdminAuthenticated, updateAppointmentStatus);
+
+router.delete("/deleteAppointment/:id",isAdminAuthenticated,deleteAppointment)
 
 export default router;
